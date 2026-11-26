@@ -1,8 +1,9 @@
 # Katsu VM Status Bot
 
-A small Python Telegram bot for checking the public IP address of a VM. It uses
-long polling, supports standard `HTTP_PROXY` / `HTTPS_PROXY` environment
-variables, and only responds to configured Telegram user IDs.
+A small Python Telegram bot for checking a VM's public IP and basic read-only
+system status. It uses long polling, supports standard `HTTP_PROXY` /
+`HTTPS_PROXY` environment variables, and only responds to configured Telegram
+user IDs.
 
 It does not execute CMD or PowerShell commands, capture screens or keystrokes,
 read Wi-Fi credentials, or install itself for automatic startup.
@@ -10,6 +11,7 @@ read Wi-Fi credentials, or install itself for automatic startup.
 ## Requirements
 
 - Python 3.10 or newer
+- `requests[socks]` (install with `python -m pip install -r requirements.txt`)
 - A Telegram bot token from BotFather
 - The numeric Telegram user ID(s) allowed to use the bot
 - Outbound HTTPS access to Telegram and `api.ipify.org` (directly or through a proxy)
@@ -21,18 +23,22 @@ In the project folder, set the values for the current PowerShell session:
 ```powershell
 $env:TELEGRAM_BOT_TOKEN = "your-bot-token"
 $env:TELEGRAM_ALLOWED_USER_IDS = "123456789"
-# Optional proxy:
-$env:HTTPS_PROXY = "http://proxy.example:8080"
+# SOCKS5 proxy. Keep the credential out of source files and GitHub.
+$env:TELEGRAM_PROXY_URL = "socks5h://username:password@proxy.example:1080"
 python .\bot.py
 ```
 
 Keep the token private. Do not commit `.env` files or paste tokens into chats.
+Encode reserved characters in proxy usernames/passwords using percent encoding.
 
 ## Use
 
-Open a private chat with the bot, send `/start`, then `/getip`. The bot replies
-with the public egress IP observed by the external IP service. This may be the
-proxy's IP when requests go through a proxy.
+Open a private chat with the bot and send `/panel`. Available commands:
+
+- `/getip` — public egress IP (may be the proxy's IP)
+- `/status` — hostname, OS, architecture, and uptime
+- `/uptime` — time since system boot
+- `/disk` — free and total space on the system drive
 
 The bot ignores messages from Telegram IDs outside
 `TELEGRAM_ALLOWED_USER_IDS`. In a group, only allowlisted users can trigger
@@ -49,10 +55,11 @@ service.
 
 ## Proxy behavior
 
-Python's standard `urllib` honors `HTTPS_PROXY` and `HTTP_PROXY`. The proxy
-must allow HTTPS access to `api.telegram.org` and `api.ipify.org`. If the proxy
-requires authentication, use your organization's approved secret management;
-do not commit credentials to this repository.
+The bot routes Telegram and IP lookup requests through `TELEGRAM_PROXY_URL`
+when set. For SOCKS5, use a `socks5h://` URL; DNS resolution then happens at
+the proxy. The proxy must allow HTTPS access to `api.telegram.org` and
+`api.ipify.org`. Do not commit proxy credentials or bot tokens to this public
+repository. Prefer a secret manager or a protected per-user environment.
 
 ## Start on login
 
@@ -67,5 +74,5 @@ need.
 
 - `/getip` reports the public egress IP, not a private LAN or VPN interface IP.
 - The IP lookup contacts `api.ipify.org`.
-- Only `/getip`, `/start`, and `/help` are implemented.
+- The bot provides read-only diagnostics only; it has no CMD/PowerShell runner.
 
