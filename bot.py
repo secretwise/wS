@@ -1,7 +1,7 @@
 """Minimal Telegram bot for reporting this VM's public IP address.
 
 The bot does not execute operating-system commands or collect credentials.
-Configure HTTPS_PROXY/HTTP_PROXY in the environment when a proxy is needed.
+Configure TELEGRAM_PROXY_URL in the environment when a proxy is needed.
 """
 
 from __future__ import annotations
@@ -151,7 +151,7 @@ def main() -> None:
                     try:
                         ip = get_public_ip()
                         send_message(token, chat_id, f"Публичный IP этой машины: {ip}")
-                    except (OSError, ValueError, RuntimeError):
+                    except (requests.RequestException, OSError, ValueError, RuntimeError):
                         send_message(token, chat_id, "Не удалось получить публичный IP.")
                 elif command == "/status":
                     send_message(token, chat_id, get_status())
