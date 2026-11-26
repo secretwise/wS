@@ -38,6 +38,15 @@ The bot ignores messages from Telegram IDs outside
 `TELEGRAM_ALLOWED_USER_IDS`. In a group, only allowlisted users can trigger
 responses; for privacy, a private bot chat is recommended.
 
+## Run checks
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+The tests use mocked responses and do not contact Telegram or the external IP
+service.
+
 ## Proxy behavior
 
 Python's standard `urllib` honors `HTTPS_PROXY` and `HTTP_PROXY`. The proxy
