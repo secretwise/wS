@@ -1,16 +1,23 @@
-import io
-import json
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import bot
 
 
 class BotTests(unittest.TestCase):
+    def test_format_duration(self):
+        self.assertEqual(bot.format_duration(90061), "1 дн. 1 ч. 1 мин. 1 сек.")
+
     def test_public_ip_response_is_parsed(self):
-        payload = json.dumps({"ip": "203.0.113.10"}).encode("utf-8")
-        with patch.object(bot.urllib.request, "urlopen", return_value=io.BytesIO(payload)):
+        response = Mock()
+        response.json.return_value = {"ip": "203.0.113.10"}
+        with patch.object(bot.requests, "get", return_value=response):
             self.assertEqual(bot.get_public_ip(), "203.0.113.10")
+
+    def test_socks_proxy_configuration_is_read_from_environment(self):
+        proxy = "socks5h://user:pass@proxy.example:1080"
+        with patch.dict("os.environ", {"TELEGRAM_PROXY_URL": proxy}):
+            self.assertEqual(bot.get_proxy_config(), {"http": proxy, "https": proxy})
 
     def test_empty_and_non_allowlisted_updates_are_ignored(self):
         updates = [
