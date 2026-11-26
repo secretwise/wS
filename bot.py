@@ -77,7 +77,10 @@ def main() -> None:
                 chat = message.get("chat") or {}
                 chat_id = chat.get("id")
                 sender_id = sender.get("id")
-                command = (message.get("text") or "").strip().split(maxsplit=1)[0].lower()
+                command_parts = (message.get("text") or "").strip().split(maxsplit=1)
+                if not command_parts:
+                    continue
+                command = command_parts[0].lower()
 
                 if sender_id not in allowed_ids or not isinstance(chat_id, int):
                     continue
