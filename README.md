@@ -1,9 +1,8 @@
 # Katsu VM Status Bot
 
 A small Python Telegram bot for checking a VM's public IP and basic read-only
-system status. It uses long polling, supports standard `HTTP_PROXY` /
-`HTTPS_PROXY` environment variables, and only responds to configured Telegram
-user IDs.
+system status. It uses long polling, supports an optional SOCKS5/HTTP proxy,
+and only responds to configured Telegram user IDs.
 
 It does not execute CMD or PowerShell commands, capture screens or keystrokes,
 read Wi-Fi credentials, or install itself for automatic startup.
